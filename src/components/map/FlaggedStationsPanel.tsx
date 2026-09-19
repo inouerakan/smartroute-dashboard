@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
-import { RiArrowDropDownLine, RiFileExcel2Line, RiDeleteBinLine } from "react-icons/ri";
+import { RiArrowDropDownLine, RiDeleteBinLine } from "react-icons/ri";
+import { FaDatabase } from "react-icons/fa6";
 import { useFlags, type FlagType } from "@/context/FlagContext";
 
 export default function FlaggedStationPanel() {
@@ -126,8 +127,8 @@ export default function FlaggedStationPanel() {
                                 disabled={currentList.length === 0}
                                 className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-light-1 text-dark-1 font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-90 transition-all cursor-pointer"
                             >
-                                <RiFileExcel2Line className="text-lg" />
-                                Export to CSV
+                                <FaDatabase className="text-sm" />
+                                Simpan ke Database
                             </button>
                         </div>
                     </motion.div>

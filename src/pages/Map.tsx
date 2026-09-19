@@ -6,6 +6,7 @@ import StationDetail from "@/components/map/StationDetail";
 import Leaderboard from "@/components/map/Leaderboard";
 import FlaggedStationsPanel from "@/components/map/FlaggedStationsPanel";
 import Map3DToggle from "@/components/map/Map3DToggle";
+import ViewToggle from "@/components/ui/ViewToggle";
 
 function getHeatmapColor(score: number): string {
   if (score >= 0.9) return "oklch(68% 0.16 25)";
@@ -24,12 +25,15 @@ export default function Map() {
   }
 
   const closeStationDetail = () => setIsStationDetailOpen(false);
-  const getIsStationDetailOpen = () => { return isStationDetailOpen };
-  const getSelectedStation = () => { return selectedStation };
+  const getIsStationDetailOpen = () => isStationDetailOpen;
+  const getSelectedStation = () => selectedStation;
 
   return (
-    <div className="bg-dark-1 overflow-hidden">
-      <div className="hidden md:block h-screen w-full">
+    <div className="bg-dark-1 overflow-hidden relative">
+      {/* Component ViewToggle yang kini sudah self-positioned */}
+      <ViewToggle />
+
+      <div className="hidden md:block h-screen w-full relative">
         <Map3DToggle center={[106.816666, -6.200000]} zoom={11}>
           <MapControls />
           {stationsData.stations.map((item, index) => (
@@ -39,41 +43,52 @@ export default function Map() {
                   <div
                     className="absolute rounded-full pointer-events-none"
                     style={{
-                      width: "40px",
-                      height: "40px",
+                      width: "32px",
+                      height: "32px",
                       backgroundColor: getHeatmapColor(item.density_score),
                       opacity: 0.4 + item.density_score * 0.4,
-                      filter: `blur(${12 + item.density_score * 16}px)`,
+                      filter: `blur(${10 + item.density_score * 12}px)`,
                       transform: "translate(-50%, -50%)",
                       top: "50%",
                       left: "50%",
                     }}
                   />
                   <motion.div
-                    className="relative z-10 w-3.5 rounded-full aspect-square border border-dark-1/10 cursor-pointer"
-                    animate={{ scale: 1.3 }}
+                    className="relative z-10 w-3 rounded-full aspect-square border border-dark-1/20 cursor-pointer"
+                    animate={{ scale: 1.25 }}
                     style={{
                       backgroundColor: getHeatmapColor(item.density_score),
-                      boxShadow: `0 0 ${8 + item.density_score * 16}px ${getHeatmapColor(item.density_score)}`,
+                      boxShadow: `0 0 ${6 + item.density_score * 12}px ${getHeatmapColor(item.density_score)}`,
                     }}
                     transition={{
                       repeat: Infinity,
                       repeatType: "mirror",
                       duration: 2,
-                      ease: "linear"
+                      ease: "linear",
                     }}
                   />
                 </div>
               </MarkerContent>
-              <MarkerTooltip className="font-mono border border-light-1/25">{item.name}</MarkerTooltip>
-              <MarkerPopup className="bg-dark-1 border border-light-1/25">
-                <div className="space-y-1 flex flex-col gap-1">
+              <MarkerTooltip className="font-mono text-xs border border-light-1/25 bg-dark-1 text-light-1 px-2 py-1 rounded">
+                {item.name}
+              </MarkerTooltip>
+              <MarkerPopup className="bg-dark-1 border border-light-1/25 p-3 rounded-lg shadow-xl">
+                <div className="space-y-2 flex flex-col">
                   <div>
-                    <p className="text-lg font-bold text-light-1">{item.name}</p>
-                    <p className="text-md font-mono text-light-2">Kepadatan: {item.density_level}</p>
-                    <p className="text-md font-mono text-light-2">Pengunjung: {item.passenger_count}</p>
+                    <p className="text-sm font-bold font-sans text-light-1">{item.name}</p>
+                    <p className="text-xs font-mono text-light-2 mt-1">
+                      Kepadatan: <span className="text-light-1 font-semibold">{item.density_level}</span>
+                    </p>
+                    <p className="text-xs font-mono text-light-2">
+                      Pengunjung: <span className="text-light-1 font-semibold">{item.passenger_count} orang</span>
+                    </p>
                   </div>
-                  <button className="w-full bg-dark-2 text-light-1 font-bold font-mono py-1 rounded-sm" onClick={() => openStationDetail(index)}>Lihat Lengkap</button>
+                  <button
+                    className="w-full bg-dark-2 hover:bg-light-1/10 border border-light-1/15 text-light-1 font-bold font-mono text-xs py-1.5 rounded-md transition-colors cursor-pointer"
+                    onClick={() => openStationDetail(index)}
+                  >
+                    Lihat Lengkap →
+                  </button>
                 </div>
               </MarkerPopup>
             </MapMarker>
@@ -81,12 +96,16 @@ export default function Map() {
         </Map3DToggle>
       </div>
 
-      <StationDetail closeStationDetail={closeStationDetail} getIsStationDetailOpen={getIsStationDetailOpen} getSelectedStation={getSelectedStation} />
+      <StationDetail
+        closeStationDetail={closeStationDetail}
+        getIsStationDetailOpen={getIsStationDetailOpen}
+        getSelectedStation={getSelectedStation}
+      />
       <Leaderboard />
       <FlaggedStationsPanel />
 
-      <div className="flex md:hidden w-full h-screen justify-center items-center text-xl p-4 text-center text-light-1">
-        Buka website di desktop untuk mengaksesnya.
+      <div className="flex md:hidden w-full h-screen justify-center items-center text-sm font-mono p-4 text-center text-light-1">
+        Buka website di desktop untuk mengakses peta interaktif.
       </div>
     </div>
   );

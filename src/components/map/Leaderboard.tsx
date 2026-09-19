@@ -21,7 +21,7 @@ export default function Leaderboard() {
     const getDensityPercent = (score: number) => `${Math.trunc(score * 100)}%`;
 
     return (
-        <div className="absolute top-6 right-6 z-50 font-mono flex flex-col gap-2">
+        <div className="absolute top-19 right-6 z-50 font-mono flex flex-col gap-2">
             {/* Toggle Button */}
             <motion.button
                 whileHover={{ scale: 1.02 }}
