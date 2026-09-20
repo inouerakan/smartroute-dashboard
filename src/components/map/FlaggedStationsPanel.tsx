@@ -1,39 +1,14 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
-import { RiArrowDropDownLine, RiDeleteBinLine } from "react-icons/ri";
-import { FaDatabase } from "react-icons/fa6";
+import { RiArrowDropDownLine } from "react-icons/ri";
 import { useFlags, type FlagType } from "@/context/FlagContext";
 
 export default function FlaggedStationPanel() {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<FlagType>("problematic");
-    const { problematicStations, optimalStations, removeFlag } = useFlags();
+    const { problematicStations, optimalStations } = useFlags();
 
     const currentList = activeTab === "problematic" ? problematicStations : optimalStations;
-
-    // Fungsi Export ke Excel (CSV Format)
-    const handleExport = () => {
-        if (currentList.length === 0) return;
-        
-        const headers = ["ID Stasiun", "Nama", "Koridor", "Skor Kepadatan", "Waktu Flag"];
-        const rows = currentList.map(s => [
-            s.id,
-            s.name,
-            s.corridor,
-            `${Math.trunc(s.density_score * 100)}%`,
-            s.flaggedAt.toLocaleString("id-ID")
-        ]);
-
-        const csvContent = [headers, ...rows]
-            .map(row => row.join(","))
-            .join("\n");
-
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `flagged_stations_${activeTab}_${new Date().toISOString().slice(0,10)}.csv`;
-        link.click();
-    };
 
     return (
         <div className="absolute top-6 left-6 z-50 font-mono flex flex-col gap-2">
@@ -86,7 +61,7 @@ export default function FlaggedStationPanel() {
                                 </button>
                             </div>
 
-                            {/* List Container */}
+                            {/* List Container — tampilan saja, kelola flag dilakukan di Dashboard */}
                             <div className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-light-1/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-light-1/20 transition-colors">
                                 {currentList.length === 0 ? (
                                     <p className="text-center text-light-2/50 text-xs py-8 italic">
@@ -95,11 +70,11 @@ export default function FlaggedStationPanel() {
                                 ) : (
                                     currentList.map((station, index) => (
                                         <motion.div
-                                            key={station.id}
+                                            key={station.dbId}
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.03 }}
-                                            className="flex items-center justify-between group"
+                                            className="flex items-center justify-between"
                                         >
                                             <div className="flex flex-col gap-0.5">
                                                 <span className="text-light-1 text-sm truncate max-w-40">
@@ -109,27 +84,10 @@ export default function FlaggedStationPanel() {
                                                     {station.corridor} • {Math.trunc(station.density_score * 100)}%
                                                 </span>
                                             </div>
-                                            <button 
-                                                onClick={() => removeFlag(station.id, activeTab)}
-                                                className="text-light-2/30 hover:text-red-400 transition-colors p-1"
-                                                title="Hapus flag"
-                                            >
-                                                <RiDeleteBinLine className="text-sm" />
-                                            </button>
                                         </motion.div>
                                     ))
                                 )}
                             </div>
-
-                            {/* Export Button */}
-                            <button 
-                                onClick={handleExport}
-                                disabled={currentList.length === 0}
-                                className="flex items-center justify-center gap-2 w-full py-2 rounded-lg bg-light-1 text-dark-1 font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed hover:brightness-90 transition-all cursor-pointer"
-                            >
-                                <FaDatabase className="text-sm" />
-                                Simpan ke Database
-                            </button>
                         </div>
                     </motion.div>
                 )}

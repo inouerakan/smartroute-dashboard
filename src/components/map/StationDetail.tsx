@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import stationsData from "@/data/stations.json";
+import { useStations } from "@/hooks/useStations";
 import { IoIosClose } from "react-icons/io";
 import { useState } from "react";
 import { RiArrowDropDownLine } from "react-icons/ri";
@@ -12,15 +12,37 @@ interface StationDetailProps {
 }
 
 export default function StationDetail(props: StationDetailProps) {
-    const densityPercent = `${Math.trunc(stationsData.stations[props.getSelectedStation()].density_score * 100)}%`;
-    const station = stationsData.stations[props.getSelectedStation()];
+    const { stations } = useStations();
+    const station = stations[props.getSelectedStation()];
     const [isButtonsOpen, setIsButtonOpen] = useState(false);
-    const { addFlag } = useFlags();
-    const handleFlag = (type: FlagType) => {
-        addFlag(station, type);
-        setIsButtonOpen(false);
+    const { addFlag, problematicStations, optimalStations } = useFlags();
+    const [isSaving, setIsSaving] = useState(false);
+
+    const currentFlag: FlagType | null = station
+        ? problematicStations.find((s) => s.id === station.id)
+            ? "problematic"
+            : optimalStations.find((s) => s.id === station.id)
+            ? "optimal"
+            : null
+        : null;
+
+    const handleFlag = async (type: FlagType) => {
+        if (!station || isSaving || currentFlag === type) return;
+        setIsSaving(true);
+        try {
+            await addFlag(station, type);
+            setIsButtonOpen(false);
+        } catch (err) {
+            console.error("Gagal menyimpan flag:", err);
+        } finally {
+            setIsSaving(false);
+        }
     };
-    
+
+    if (!station) return null;
+
+    const densityPercent = `${Math.trunc(station.density_score * 100)}%`;
+
     return (
         <AnimatePresence>
             {props.getIsStationDetailOpen() && (
@@ -71,7 +93,11 @@ export default function StationDetail(props: StationDetailProps) {
                             </div>
                             <p className="text-sm text-light-2 self-center">Tingkat Kepadatan</p>
                             <button className="flex gap-2 items-center justify-center text-light-2 mt-3" onClick={() => setIsButtonOpen(!isButtonsOpen)}>
-                                <p className="text-sm">Aksi</p>
+                                <p className="text-sm">
+                                    {currentFlag === "problematic" && "Ditandai Bermasalah"}
+                                    {currentFlag === "optimal" && "Ditandai Optimal"}
+                                    {!currentFlag && "Aksi"}
+                                </p>
                                 <RiArrowDropDownLine 
                                 className="transition-transform duration-300 ease-in-out"
                                 style={{ transform: `rotate(${isButtonsOpen ? 0 : -180}deg)` }} />
@@ -85,12 +111,14 @@ export default function StationDetail(props: StationDetailProps) {
                                     exit={{ opacity: 0, height: 0, marginTop: 0 }}>
                                         <motion.button 
                                             onClick={() => handleFlag("problematic")}
-                                            className="bg-red-1/10 text-red-1 py-2 flex-1 rounded-sm hover:bg-red-500/20 transition-colors">
+                                            disabled={isSaving || currentFlag === "problematic"}
+                                            className="bg-red-1/10 text-red-1 py-2 flex-1 rounded-sm hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             Bermasalah
                                         </motion.button>
                                         <motion.button 
                                             onClick={() => handleFlag("optimal")}
-                                            className="bg-green-1/10 text-green-1 py-2 flex-1 rounded-sm hover:bg-green-500/20 transition-colors">
+                                            disabled={isSaving || currentFlag === "optimal"}
+                                            className="bg-green-1/10 text-green-1 py-2 flex-1 rounded-sm hover:bg-green-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                             Optimal
                                         </motion.button>
                                     </motion.div>

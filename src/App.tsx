@@ -1,6 +1,7 @@
 import Map from './pages/Map';
 import Dashboard from './pages/Dashboard';
-import {BrowserRouter, Routes, Route} from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { FlagProvider } from './context/FlagContext';
 
 function NotFound() {
   return (
@@ -13,11 +14,13 @@ function NotFound() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path='/map' element={<Map />}></Route>
-        <Route path='/' element={<Dashboard />}></Route>
-        <Route path='*' element={<NotFound />}></Route>
-      </Routes>
+      <FlagProvider>
+        <Routes>
+          <Route path='/map' element={<Map />}></Route>
+          <Route path='/' element={<Dashboard />}></Route>
+          <Route path='*' element={<NotFound />}></Route>
+        </Routes>
+      </FlagProvider>
     </BrowserRouter>
   )
 }

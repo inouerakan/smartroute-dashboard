@@ -1,5 +1,5 @@
 import { MapControls, MapMarker, MarkerContent, MarkerPopup, MarkerTooltip } from "@/components/ui/map";
-import stationsData from "@/data/stations.json";
+import { useStations } from "@/hooks/useStations";
 import { motion } from "motion/react";
 import { useState } from "react";
 import StationDetail from "@/components/map/StationDetail";
@@ -18,6 +18,7 @@ function getHeatmapColor(score: number): string {
 export default function Map() {
   const [isStationDetailOpen, setIsStationDetailOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState(Number(null));
+  const { stations } = useStations();
 
   function openStationDetail(index: number) {
     setIsStationDetailOpen(true);
@@ -36,7 +37,7 @@ export default function Map() {
       <div className="hidden md:block h-screen w-full relative">
         <Map3DToggle center={[106.816666, -6.200000]} zoom={11}>
           <MapControls />
-          {stationsData.stations.map((item, index) => (
+          {stations.map((item, index) => (
             <MapMarker key={item.id} longitude={item.coordinates[1]} latitude={item.coordinates[0]}>
               <MarkerContent>
                 <div className="relative flex items-center justify-center">

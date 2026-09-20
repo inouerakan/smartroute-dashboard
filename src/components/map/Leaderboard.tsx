@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useMemo } from "react";
-import stationsData from "@/data/stations.json";
+import { useStations } from "@/hooks/useStations";
 import { RiArrowDropDownLine } from "react-icons/ri";
 
 type SortOrder = "desc" | "asc";
@@ -8,15 +8,16 @@ type SortOrder = "desc" | "asc";
 export default function Leaderboard() {
     const [isOpen, setIsOpen] = useState(false);
     const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+    const { stations } = useStations();
 
     // Urutkan stasiun berdasarkan density_score
     const sortedStations = useMemo(() => {
-        return [...stationsData.stations].sort((a, b) => {
+        return [...stations].sort((a, b) => {
             return sortOrder === "desc" 
                 ? b.density_score - a.density_score 
                 : a.density_score - b.density_score;
         });
-    }, [sortOrder]);
+    }, [stations, sortOrder]);
 
     const getDensityPercent = (score: number) => `${Math.trunc(score * 100)}%`;
 
