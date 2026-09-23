@@ -7,6 +7,8 @@ import Leaderboard from "@/components/map/Leaderboard";
 import FlaggedStationsPanel from "@/components/map/FlaggedStationsPanel";
 import Map3DToggle from "@/components/map/Map3DToggle";
 import ViewToggle from "@/components/ui/ViewToggle";
+import DigitalClock from "@/components/ui/DigitalClock";
+import LogoutButton from "@/components/ui/LogoutButton";
 
 function getHeatmapColor(score: number): string {
   if (score >= 0.9) return "oklch(68% 0.16 25)";
@@ -33,6 +35,8 @@ export default function Map() {
     <div className="bg-dark-1 overflow-hidden relative">
       {/* Component ViewToggle yang kini sudah self-positioned */}
       <ViewToggle />
+      <DigitalClock />
+      <LogoutButton />
 
       <div className="hidden md:block h-screen w-full relative">
         <Map3DToggle center={[106.816666, -6.200000]} zoom={11}>
